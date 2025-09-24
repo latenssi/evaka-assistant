@@ -1,8 +1,76 @@
-let reservationData = null;
-let currentDateRange = null;
+// Type definitions
+interface DateRange {
+  from: string;
+  to: string;
+}
+
+interface MonthSummary {
+  year: number;
+  month: number;
+  serviceNeedMinutes: number;
+  reservedMinutes: number;
+  usedServiceMinutes: number;
+}
+
+interface Child {
+  id: string;
+  firstName: string;
+  lastName: string;
+  monthSummaries: MonthSummary[];
+}
+
+interface UsedService {
+  reservedMinutes: number;
+  usedServiceMinutes: number;
+  usedServiceRanges: Array<{ start: string; end: string }>;
+}
+
+interface Absence {
+  type: string;
+  editable: boolean;
+}
+
+interface DayChild {
+  childId: string;
+  scheduleType: string;
+  shiftCare: boolean;
+  absence: Absence | null;
+  reservations: any[];
+  attendances: any[];
+  usedService: UsedService;
+  reservableTimeRange: any;
+  holidayPeriodEffect: any;
+}
+
+interface Day {
+  date: string;
+  holiday: boolean;
+  children: DayChild[];
+}
+
+interface ReservationData {
+  children: Child[];
+  days: Day[];
+  reservableRange: { start: string; end: string };
+}
+
+interface ProjectionData {
+  usedHours: number;
+  usedMinutes: number;
+  futureHours: number;
+  futureMinutes: number;
+  projectedHours: number;
+  projectedMinutes: number;
+  allowedHours: number;
+  allowedMinutes: number;
+  overUnder: number;
+}
+
+let reservationData: ReservationData | null = null;
+let currentDateRange: DateRange | null = null;
 
 // Parse date range from the monthly summary title
-function parseDateRange(titleText) {
+function parseDateRange(titleText: string): DateRange | null {
   // Extract dates from "Läsnäolot 01.09. - 30.09.2025"
   const match = titleText.match(
     /(\d{2})\.(\d{2})\.\s*-\s*(\d{2})\.(\d{2})\.(\d{4})/
@@ -20,7 +88,9 @@ function parseDateRange(titleText) {
 }
 
 // Fetch reservations with specific date range
-async function fetchReservations(dateRange = null) {
+async function fetchReservations(
+  dateRange: DateRange | null = null
+): Promise<ReservationData | null> {
   try {
     let from, to;
 
@@ -48,6 +118,7 @@ async function fetchReservations(dateRange = null) {
 
     if (response.ok) {
       reservationData = await response.json();
+      console.log("Fetched new reservation data:", reservationData);
       currentDateRange = { from, to };
       return reservationData;
     }
@@ -58,7 +129,10 @@ async function fetchReservations(dateRange = null) {
 }
 
 // Calculate projected attendance for a child
-function calculateProjectedAttendance(child, days) {
+function calculateProjectedAttendance(
+  child: Child,
+  days: Day[]
+): ProjectionData | null {
   const today = new Date().toISOString().split("T")[0];
   const monthSummary = child.monthSummaries?.[0];
 
@@ -95,7 +169,7 @@ function calculateProjectedAttendance(child, days) {
 }
 
 // Enhance monthly summary with projected data
-function enhanceMonthlyInfo() {
+function enhanceMonthlyInfo(): void {
   if (!reservationData) return;
 
   const infoElements = document.querySelectorAll(
@@ -103,6 +177,8 @@ function enhanceMonthlyInfo() {
   );
 
   infoElements.forEach((element, index) => {
+    if (!reservationData) return;
+
     const child = reservationData.children[index];
     if (!child) return;
 
@@ -113,7 +189,9 @@ function enhanceMonthlyInfo() {
     if (!projection) return;
 
     // Remove existing projection if it exists
-    const existingProjection = element.querySelector('.evaka-assistant-projection');
+    const existingProjection = element.querySelector(
+      ".evaka-assistant-projection"
+    );
     if (existingProjection) {
       existingProjection.remove();
     }
@@ -127,9 +205,10 @@ function enhanceMonthlyInfo() {
         : `-${overUnderHours} h ${overUnderMinutes} min`;
 
     // Create projection element
-    const projectionElement = document.createElement('div');
-    projectionElement.className = 'evaka-assistant-projection';
-    projectionElement.style.cssText = 'color: #666; font-size: 14px; margin-top: 5px;';
+    const projectionElement = document.createElement("div");
+    projectionElement.className = "evaka-assistant-projection";
+    projectionElement.style.cssText =
+      "color: #666; font-size: 14px; margin-top: 5px;";
     projectionElement.textContent = `Ennuste ${projection.projectedHours} h ${projection.projectedMinutes} min / ${projection.allowedHours} h (${overUnderText})`;
 
     // Add to the info element
@@ -138,13 +217,15 @@ function enhanceMonthlyInfo() {
 }
 
 // Clear all projection elements
-function clearProjections() {
-  const projectionElements = document.querySelectorAll('.evaka-assistant-projection');
-  projectionElements.forEach(el => el.remove());
+function clearProjections(): void {
+  const projectionElements = document.querySelectorAll(
+    ".evaka-assistant-projection"
+  );
+  projectionElements.forEach((el) => el.remove());
 }
 
 // Watch for changes in the monthly summary title
-function watchMonthlyTitle() {
+function watchMonthlyTitle(): void {
   const observer = new MutationObserver(() => {
     const titleElement = document.querySelector(
       '[data-qa="monthly-summary-info-title"]'
@@ -163,12 +244,8 @@ function watchMonthlyTitle() {
         reservationData = null;
 
         // Fetch new data for the new month
-        fetchReservations(currentDateRange).then((data) => {
-          reservationData = data;
-          console.log("Fetched new reservation data:", reservationData);
-          if (data) {
-            enhanceMonthlyInfo();
-          }
+        fetchReservations(currentDateRange).then(() => {
+          enhanceMonthlyInfo();
         });
       }
     }
@@ -197,4 +274,3 @@ if (document.readyState === "loading") {
 } else {
   watchMonthlyTitle();
 }
-

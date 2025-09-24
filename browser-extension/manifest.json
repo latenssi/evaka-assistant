@@ -5,6 +5,6 @@
   "host_permissions": ["*://evaka.turku.fi/*"],
   "content_scripts": [{
     "matches": ["*://evaka.turku.fi/*"],
-    "js": ["content.js"]
+    "js": ["dist/content.js"]
   }]
 }

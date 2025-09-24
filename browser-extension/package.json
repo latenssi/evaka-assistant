@@ -1,0 +1,14 @@
+{
+  "name": "evaka-assistant",
+  "version": "1.0.0",
+  "description": "Browser extension for Evaka daycare reservation system",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "dev": "tsc --watch"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@types/chrome": "^0.0.246"
+  }
+}
