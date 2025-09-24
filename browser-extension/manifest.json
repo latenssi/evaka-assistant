@@ -2,13 +2,9 @@
   "manifest_version": 3,
   "name": "Evaka Assistant",
   "version": "1.0.0",
-  "permissions": ["activeTab"],
   "host_permissions": ["*://evaka.turku.fi/*"],
   "content_scripts": [{
     "matches": ["*://evaka.turku.fi/*"],
     "js": ["content.js"]
-  }],
-  "action": {
-    "default_popup": "popup.html"
-  }
+  }]
 }
