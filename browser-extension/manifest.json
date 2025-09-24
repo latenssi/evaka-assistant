@@ -2,34 +2,13 @@
   "manifest_version": 3,
   "name": "Evaka Assistant",
   "version": "1.0.0",
-  "description": "Enhanced interface for Evaka daycare ERP system",
-
-  "permissions": ["activeTab", "storage", "webRequest"],
-
+  "permissions": ["activeTab"],
   "host_permissions": ["*://evaka.turku.fi/*"],
-
-  "content_scripts": [
-    {
-      "matches": ["*://evaka.turku.fi/*"],
-      "js": ["content.js"],
-      "css": ["styles.css"],
-      "run_at": "document_end"
-    }
-  ],
-
-  "background": {
-    "scripts": ["background.js"]
-  },
-
+  "content_scripts": [{
+    "matches": ["*://evaka.turku.fi/*"],
+    "js": ["content.js"]
+  }],
   "action": {
-    "default_popup": "popup.html",
-    "default_title": "Evaka Assistant"
-  },
-
-  "icons": {
-    "16": "icons/icon16.png",
-    "32": "icons/icon32.png",
-    "48": "icons/icon48.png",
-    "128": "icons/icon128.png"
+    "default_popup": "popup.html"
   }
 }
