@@ -112,13 +112,13 @@ function enhanceMonthlyInfo() {
     );
     if (!projection) return;
 
-    // Find existing content
-    const paragraphs = element.querySelectorAll("p");
-    if (paragraphs.length < 2) return;
+    // Remove existing projection if it exists
+    const existingProjection = element.querySelector('.evaka-assistant-projection');
+    if (existingProjection) {
+      existingProjection.remove();
+    }
 
-    const currentText = paragraphs[1].innerHTML;
-
-    // Add projected information
+    // Calculate projection display values
     const overUnderHours = Math.floor(Math.abs(projection.overUnder) / 60);
     const overUnderMinutes = Math.abs(projection.overUnder) % 60;
     const overUnderText =
@@ -126,12 +126,21 @@ function enhanceMonthlyInfo() {
         ? `+${overUnderHours} h ${overUnderMinutes} min`
         : `-${overUnderHours} h ${overUnderMinutes} min`;
 
-    const projectedLine = `<br><span style="color: #666;">Ennuste ${projection.projectedHours} h ${projection.projectedMinutes} min / ${projection.allowedHours} h (${overUnderText})</span>`;
+    // Create projection element
+    const projectionElement = document.createElement('div');
+    projectionElement.className = 'evaka-assistant-projection';
+    projectionElement.style.cssText = 'color: #666; font-size: 14px; margin-top: 5px;';
+    projectionElement.textContent = `Ennuste ${projection.projectedHours} h ${projection.projectedMinutes} min / ${projection.allowedHours} h (${overUnderText})`;
 
-    if (!currentText.includes("Ennuste")) {
-      paragraphs[1].innerHTML = currentText + projectedLine;
-    }
+    // Add to the info element
+    element.appendChild(projectionElement);
   });
+}
+
+// Clear all projection elements
+function clearProjections() {
+  const projectionElements = document.querySelectorAll('.evaka-assistant-projection');
+  projectionElements.forEach(el => el.remove());
 }
 
 // Watch for changes in the monthly summary title
@@ -149,19 +158,9 @@ function watchMonthlyTitle() {
         console.log("Month changed:", dateRange);
         currentDateRange = dateRange;
 
-        // Clear enhanced info when month changes
-        const infoElements = document.querySelectorAll(
-          '[data-qa="monthly-summary-info-text"] p:last-child'
-        );
-        infoElements.forEach((el) => {
-          if (el.innerHTML.includes("Ennuste")) {
-            el.innerHTML = el.innerHTML.split(
-              '<br><span style="color: #666;">Ennuste'
-            )[0];
-          }
-        });
-
-        reservationData = null; // Clear previous data
+        // Clear projections when month changes
+        clearProjections();
+        reservationData = null;
 
         // Fetch new data for the new month
         fetchReservations(currentDateRange).then((data) => {
