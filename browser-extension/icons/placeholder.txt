@@ -1,0 +1,14 @@
+# Extension Icons
+
+Place the following icon files in this directory:
+- icon16.png (16x16 pixels)
+- icon32.png (32x32 pixels)
+- icon48.png (48x48 pixels)
+- icon128.png (128x128 pixels)
+
+For now, the extension will work without icons, but they improve the user experience.
+
+You can create simple icons with:
+- 🔧 wrench emoji as the main symbol
+- Blue gradient background matching the extension theme (#667eea to #764ba2)
+- Clean, minimal design suitable for small sizes
